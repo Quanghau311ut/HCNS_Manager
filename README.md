@@ -26,8 +26,10 @@ DB_ODBC_DRIVER=ODBC Driver 18 for SQL Server
 ## Cấu trúc MVC
 
 - `app/models/`: kết nối database, metadata nghiệp vụ và audit log.
-- `app/controllers/`: dashboard, module CRUD, lịch phòng họp và nhật ký.
-- `app/templates/`: giao diện Jinja cho từng màn hình.
+- `app/modules/<module>/model.py`: truy cập dữ liệu nghiệp vụ của module.
+- `app/modules/<module>/controller.py`: route và điều phối yêu cầu của module.
+- `app/templates/modules/<module>/`: giao diện riêng của module; các phần dùng chung nằm trong `app/templates/modules/_index.html`.
+- `app/controllers/`: dashboard và nhật ký hệ thống.
 - `app/static/`: CSS responsive và JavaScript tương tác.
 
 Các module dữ liệu có danh sách, tìm kiếm, lọc trạng thái, thêm/sửa/xóa và xuất CSV. Quản lý phòng họp có danh mục mẫu, đặt lịch, phát hiện trùng khung giờ, duyệt/từ chối/hủy. Đây là nền tảng MVC dùng bộ trường dữ liệu chung; các quy trình tính lương, đồng bộ thiết bị chấm công, phân quyền người dùng, thông báo thời gian thực và sao lưu cần được tích hợp theo quy trình thực tế của công ty.

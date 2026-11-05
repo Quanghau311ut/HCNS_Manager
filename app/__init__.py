@@ -3,10 +3,9 @@ from datetime import date
 from dotenv import load_dotenv
 from flask import Flask
 from app.controllers.dashboard import dashboard_bp
-from app.controllers.modules import modules_bp
-from app.controllers.meetings import meetings_bp
 from app.controllers.system import system_bp
 from app.models.database import init_db
+from app.modules import BLUEPRINTS
 
 
 def create_app():
@@ -20,8 +19,9 @@ def create_app():
     def inject_date():
         return {"today": date.today().strftime("%d/%m/%Y")}
     app.register_blueprint(dashboard_bp)
-    app.register_blueprint(modules_bp, url_prefix="/module")
-    app.register_blueprint(meetings_bp, url_prefix="/meetings")
+    for blueprint in BLUEPRINTS:
+        key = blueprint.name.removeprefix("module_")
+        app.register_blueprint(blueprint, url_prefix=f"/module/{key}")
     app.register_blueprint(system_bp, url_prefix="/system")
     with app.app_context():
         init_db()

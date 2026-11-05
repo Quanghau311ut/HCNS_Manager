@@ -14,12 +14,12 @@
   <a class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}" href="{{ url_for('dashboard.index') }}"><span>⌂</span> Tổng quan</a>
   <div class="side-label">NHÂN SỰ</div>
   {% for key, item in [('employees','Hồ sơ nhân viên'),('attendance','Chấm công & tính công'),('leave_requests','Nghỉ phép'),('recruitment','Tuyển dụng'),('training','Đào tạo & đánh giá'),('payroll','Lương & phúc lợi')] %}
-    <a class="nav-link {% if request.view_args and request.view_args.get('key') == key %}active{% endif %}" href="{{ url_for('modules.listing', key=key) }}"><span>◦</span>{{ item }}</a>
+    <a class="nav-link {% if request.blueprint == 'module_' ~ key %}active{% endif %}" href="{{ url_for('module_' ~ key ~ '.listing') }}"><span>◦</span>{{ item }}</a>
   {% endfor %}
   <div class="side-label">VẬN HÀNH</div>
-  <a class="nav-link {% if request.endpoint == 'meetings.index' %}active{% endif %}" href="{{ url_for('meetings.index') }}"><span>▦</span> Phòng họp</a>
+  <a class="nav-link {% if request.blueprint == 'module_meetings' %}active{% endif %}" href="{{ url_for('module_meetings.listing') }}"><span>▦</span> Phòng họp</a>
   {% for key, item in [('documents','Hành chính & văn thư'),('reports','Báo cáo & thống kê'),('notifications','Thông báo'),('users','Tài khoản & phân quyền')] %}
-    <a class="nav-link {% if request.view_args and request.view_args.get('key') == key %}active{% endif %}" href="{{ url_for('modules.listing', key=key) }}"><span>◦</span>{{ item }}</a>
+    <a class="nav-link {% if request.blueprint == 'module_' ~ key %}active{% endif %}" href="{{ url_for('module_' ~ key ~ '.listing') }}"><span>◦</span>{{ item }}</a>
   {% endfor %}
   <a class="nav-link {% if request.endpoint == 'system.audit' %}active{% endif %}" href="{{ url_for('system.audit') }}"><span>◷</span> Nhật ký hoạt động</a>
   <div class="sidebar-bottom"><div class="help-card"><span class="help-icon">?</span><strong>Cần trợ giúp?</strong><small>Liên hệ quản trị viên hệ thống</small></div><div class="user-mini"><div class="avatar">AD</div><div><b>Quản trị viên</b><small>Phòng Nhân sự</small></div><span class="more">···</span></div></div>
