@@ -8,6 +8,8 @@
 2. Sao chép `.env.example` thành `.env`, đặt `DB_ENGINE=sqlite` để chạy cục bộ.
 3. Chạy `flask --app main run --debug`.
 
+Lần đầu chạy, mở `/setup` để tạo tài khoản administrator đầu tiên (mật khẩu tối thiểu 12 ký tự). Administrator tạo tài khoản và gán vai trò tại **Tài khoản người dùng**.
+
 Ứng dụng khởi tạo các bảng còn thiếu khi khởi động. SQLite lưu dữ liệu trong `instance/hcns_manager.db`.
 
 ## Kết nối SQL Server
@@ -32,4 +34,10 @@ DB_ODBC_DRIVER=ODBC Driver 18 for SQL Server
 - `app/controllers/`: dashboard và nhật ký hệ thống.
 - `app/static/`: CSS responsive và JavaScript tương tác.
 
-Các module dữ liệu có danh sách, tìm kiếm, lọc trạng thái, thêm/sửa/xóa và xuất CSV. Quản lý phòng họp có danh mục mẫu, đặt lịch, phát hiện trùng khung giờ, duyệt/từ chối/hủy. Đây là nền tảng MVC dùng bộ trường dữ liệu chung; các quy trình tính lương, đồng bộ thiết bị chấm công, phân quyền người dùng, thông báo thời gian thực và sao lưu cần được tích hợp theo quy trình thực tế của công ty.
+Các module dữ liệu có danh sách, tìm kiếm, lọc trạng thái, thêm/sửa/xóa và xuất CSV. Quản lý phòng họp có danh mục mẫu, đặt lịch, phát hiện trùng khung giờ, duyệt/từ chối/hủy. Đây là nền tảng MVC dùng bộ trường dữ liệu chung; các quy trình tính lương, đồng bộ thiết bị chấm công, thông báo thời gian thực và sao lưu cần được tích hợp theo quy trình thực tế của công ty.
+
+## Vai trò truy cập
+
+- `administrator`: truy cập dashboard, toàn bộ phân hệ, duyệt phòng họp và quản lý tài khoản.
+- Người dùng khác: chỉ truy cập đơn nghỉ phép của chính mình và dữ liệu chấm công gán theo tài khoản. Chỉ được tạo đơn nghỉ; trạng thái do administrator quản lý.
+- `to_truong`, `to_pho`, `truong_phong`, `pho_phong`, `ban_giam_doc`: được xem lịch và yêu cầu đặt phòng. Mọi yêu cầu mới có trạng thái chờ administrator duyệt; thời gian chồng lấn với lịch chưa hủy/bị từ chối bị từ chối ngay khi gửi.

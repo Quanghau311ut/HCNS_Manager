@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from app.models.audit import log
 from app.modules.meetings.model import MeetingModel
 
@@ -17,12 +17,13 @@ def book():
     room_id, start, end = request.form.get("room_id", ""), request.form.get("start_date", ""), request.form.get("end_date", "")
     if not title or not room_id or not start or not end or end <= start:
         flash("Vui lòng nhập đủ thông tin và kiểm tra thời gian đặt phòng.", "error")
-    elif model.has_conflict(room_id, start, end):
-        flash("Phòng đã có lịch trong khoảng thời gian này.", "error")
     else:
-        model.create_booking(title, request.form.get("detail", ""), "Chờ duyệt", start, end, room_id, request.form.get("requester", "").strip())
-        log("Đặt phòng", title)
-        flash("Yêu cầu đặt phòng đã gửi, đang chờ duyệt.", "success")
+        created = model.create_booking_if_available(title, request.form.get("detail", ""), start, end, room_id, g.user["title"], g.user["id"])
+        if not created:
+            flash("Phòng đã có lịch trong khoảng thời gian này.", "error")
+        else:
+            log("Đặt phòng", title)
+            flash("Yêu cầu đặt phòng đã gửi, đang chờ administrator duyệt.", "success")
     return redirect(url_for("module_meetings.listing"))
 
 

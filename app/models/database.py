@@ -73,9 +73,27 @@ def init_db():
         cur = conn.cursor()
         for table in TABLES:
             if sqlserver:
-                cur.execute(f"IF OBJECT_ID(N'dbo.{table}', N'U') IS NULL CREATE TABLE dbo.{table} (id INT IDENTITY(1,1) PRIMARY KEY, title NVARCHAR(200) NOT NULL, detail NVARCHAR(MAX) NULL, status NVARCHAR(40) NOT NULL DEFAULT N'Mới', start_date NVARCHAR(20) NULL, end_date NVARCHAR(20) NULL, owner NVARCHAR(120) NULL, created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME())")
+                cur.execute(f"IF OBJECT_ID(N'dbo.{table}', N'U') IS NULL CREATE TABLE dbo.{table} (id INT IDENTITY(1,1) PRIMARY KEY, title NVARCHAR(200) NOT NULL, detail NVARCHAR(MAX) NULL, status NVARCHAR(40) NOT NULL DEFAULT N'Mới', start_date NVARCHAR(20) NULL, end_date NVARCHAR(20) NULL, owner NVARCHAR(120) NULL, user_id INT NULL, created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME())")
+                cur.execute(f"IF COL_LENGTH('dbo.{table}','user_id') IS NULL ALTER TABLE dbo.{table} ADD user_id INT NULL")
             else:
-                cur.execute(f"CREATE TABLE IF NOT EXISTS {table} (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, detail TEXT, status TEXT NOT NULL DEFAULT 'Mới', start_date TEXT, end_date TEXT, owner TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)")
+                cur.execute(f"CREATE TABLE IF NOT EXISTS {table} (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, detail TEXT, status TEXT NOT NULL DEFAULT 'Mới', start_date TEXT, end_date TEXT, owner TEXT, user_id INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP)")
+                columns = [row[1] for row in cur.execute(f"PRAGMA table_info({table})").fetchall()]
+                if "user_id" not in columns:
+                    cur.execute(f"ALTER TABLE {table} ADD COLUMN user_id INTEGER")
+        if sqlserver:
+            cur.execute("IF COL_LENGTH('dbo.users','username') IS NULL ALTER TABLE dbo.users ADD username NVARCHAR(80) NULL")
+            cur.execute("IF COL_LENGTH('dbo.users','password_hash') IS NULL ALTER TABLE dbo.users ADD password_hash NVARCHAR(255) NULL")
+            cur.execute("IF COL_LENGTH('dbo.users','role') IS NULL ALTER TABLE dbo.users ADD role NVARCHAR(50) NOT NULL CONSTRAINT DF_users_role DEFAULT N'user'")
+            cur.execute("IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name='UX_users_username' AND object_id=OBJECT_ID('dbo.users')) CREATE UNIQUE INDEX UX_users_username ON dbo.users(username) WHERE username IS NOT NULL")
+        else:
+            columns = [row[1] for row in cur.execute("PRAGMA table_info(users)").fetchall()]
+            if "username" not in columns:
+                cur.execute("ALTER TABLE users ADD COLUMN username TEXT")
+            if "password_hash" not in columns:
+                cur.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
+            if "role" not in columns:
+                cur.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
+            cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS UX_users_username ON users(username) WHERE username IS NOT NULL")
         if sqlserver:
             cur.execute("IF OBJECT_ID(N'dbo.meeting_rooms', N'U') IS NULL CREATE TABLE dbo.meeting_rooms (id INT IDENTITY(1,1) PRIMARY KEY, name NVARCHAR(150) NOT NULL, capacity INT NOT NULL DEFAULT 1, equipment NVARCHAR(500) NULL, status NVARCHAR(30) NOT NULL DEFAULT N'Hoạt động')")
             cur.execute("IF OBJECT_ID(N'dbo.audit_logs', N'U') IS NULL CREATE TABLE dbo.audit_logs (id INT IDENTITY(1,1) PRIMARY KEY, actor NVARCHAR(120), action NVARCHAR(200), target NVARCHAR(200), created_at DATETIME2 DEFAULT SYSDATETIME())")

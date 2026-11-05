@@ -19,6 +19,8 @@ document.addEventListener('click', function (event) {
     document.getElementById('record-start').value = edit.dataset.start;
     document.getElementById('record-end').value = edit.dataset.end;
     document.getElementById('record-owner').value = edit.dataset.owner;
+    const accountSelect = document.querySelector('#record-modal select[name="user_id"]');
+    if (accountSelect) accountSelect.value = edit.dataset.userId || '';
     document.getElementById('record-modal').classList.add('open');
   }
 });

@@ -1,4 +1,4 @@
-from app.models.database import execute, rows
+from app.models.database import connection, execute, rows
 
 
 class MeetingModel:
@@ -15,8 +15,18 @@ class MeetingModel:
     def has_conflict(self, room_id, start, end):
         return bool(rows("SELECT id FROM meeting_bookings WHERE owner=? AND status NOT IN ('Đã hủy','Từ chối') AND start_date < ? AND end_date > ?", (room_id, end, start)))
 
-    def create_booking(self, title, detail, status, start, end, room_id, requester):
-        execute("INSERT INTO meeting_bookings (title, detail, status, start_date, end_date, owner, requester) VALUES (?, ?, ?, ?, ?, ?, ?)", (title, detail, status, start, end, room_id, requester))
+    def create_booking_if_available(self, title, detail, start, end, room_id, requester, user_id):
+        with connection() as (conn, sqlserver):
+            cur = conn.cursor()
+            if sqlserver:
+                cur.execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+            else:
+                cur.execute("BEGIN IMMEDIATE")
+            cur.execute("SELECT id FROM meeting_bookings WHERE owner=? AND status NOT IN ('Đã hủy','Từ chối') AND start_date < ? AND end_date > ?", (room_id, end, start))
+            if cur.fetchall():
+                return False
+            cur.execute("INSERT INTO meeting_bookings (title, detail, status, start_date, end_date, owner, requester, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (title, detail, "Chờ duyệt", start, end, room_id, requester, user_id))
+            return True
 
     def set_status(self, booking_id, status):
         execute("UPDATE meeting_bookings SET status=? WHERE id=?", (status, booking_id))
