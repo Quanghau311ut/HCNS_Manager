@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}HCNS Manager{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="{{ url_for('dashboard.index') }}"><span class="brand-mark">H</span><span>harmony<span class="brand-sub">PEOPLE & CULTURE</span></span></a>
+  <div class="side-label">WORKSPACE</div>
+  <a class="nav-link {% if request.endpoint == 'dashboard.index' %}active{% endif %}" href="{{ url_for('dashboard.index') }}"><span>⌂</span> Tổng quan</a>
+  <div class="side-label">NHÂN SỰ</div>
+  {% for key, item in [('employees','Hồ sơ nhân viên'),('attendance','Chấm công & tính công'),('leave_requests','Nghỉ phép'),('recruitment','Tuyển dụng'),('training','Đào tạo & đánh giá'),('payroll','Lương & phúc lợi')] %}
+    <a class="nav-link {% if request.view_args and request.view_args.get('key') == key %}active{% endif %}" href="{{ url_for('modules.listing', key=key) }}"><span>◦</span>{{ item }}</a>
+  {% endfor %}
+  <div class="side-label">VẬN HÀNH</div>
+  <a class="nav-link {% if request.endpoint == 'meetings.index' %}active{% endif %}" href="{{ url_for('meetings.index') }}"><span>▦</span> Phòng họp</a>
+  {% for key, item in [('documents','Hành chính & văn thư'),('reports','Báo cáo & thống kê'),('notifications','Thông báo'),('users','Tài khoản & phân quyền')] %}
+    <a class="nav-link {% if request.view_args and request.view_args.get('key') == key %}active{% endif %}" href="{{ url_for('modules.listing', key=key) }}"><span>◦</span>{{ item }}</a>
+  {% endfor %}
+  <a class="nav-link {% if request.endpoint == 'system.audit' %}active{% endif %}" href="{{ url_for('system.audit') }}"><span>◷</span> Nhật ký hoạt động</a>
+  <div class="sidebar-bottom"><div class="help-card"><span class="help-icon">?</span><strong>Cần trợ giúp?</strong><small>Liên hệ quản trị viên hệ thống</small></div><div class="user-mini"><div class="avatar">AD</div><div><b>Quản trị viên</b><small>Phòng Nhân sự</small></div><span class="more">···</span></div></div>
+</aside>
+<main class="main-shell"><header class="topbar"><div class="crumb">Harmony <span>/</span> <b>{% block crumb %}Tổng quan{% endblock %}</b></div><div class="top-actions"><span class="today">◷ &nbsp; {{ today or '' }}</span><button class="icon-button" aria-label="Thông báo">♧<i></i></button><div class="avatar avatar-small">AD</div></div></header>
+<section class="page-content">{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-stack">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}{% block content %}{% endblock %}</section>
+</main><script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
